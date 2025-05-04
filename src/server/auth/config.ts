@@ -1,7 +1,4 @@
-import {
-  isLoginResponseBody,
-  type LoginRequestBody,
-} from "@models/dto/auth";
+import { isLoginResponseBody, type LoginRequestBody } from "@models/dto/auth";
 import type { RequireKeys } from "@models/utils";
 import {
   type DefaultSession,
@@ -16,7 +13,7 @@ import {
   UnknownResponseError,
 } from "./CredentialSignInErrors";
 import assert from "assert";
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode, type JwtPayload } from "jwt-decode";
 
 // /**
 //  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -31,7 +28,8 @@ declare module "next-auth" {
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
-    accessToken?: string; // optional, if you pass it
+    accessToken?: string;
+    scopes?: string[];
   }
 
   interface User {
@@ -48,6 +46,7 @@ declare module "@auth/core/jwt" {
     accessToken?: string;
     user: Omit<User, "token">;
     expires?: number;
+    scopes?: string[];
   }
 }
 
@@ -148,13 +147,15 @@ export const authConfig = {
       // console.debug("JWT callback:", { token, user });
       // If user just signed in, add user data to the token object
       if (user?.id) {
+        const decodedToken = getAccessTokenPayload(user.accessToken);
         token.accessToken = user.accessToken;
-        token.expires = getAccessTokenExpiration(user.accessToken) ?? undefined;
+        token.expires = decodedToken?.exp;
         token.user = {
           id: user.id,
           name: user.name,
           email: user.email,
         };
+        token.scopes = decodedToken?.scopes ?? [];
       }
 
       // If token is reused, check if the access token is expired
@@ -171,6 +172,7 @@ export const authConfig = {
     async session({ session, token }) {
       // console.debug("Session callback:", { session, token });
       session.accessToken = token.accessToken;
+      session.scopes = token.scopes ?? [];
       if (token.user.id) {
         session.user = {
           id: token.user.id,
@@ -186,14 +188,16 @@ export const authConfig = {
   },
 } satisfies NextAuthConfig;
 
-function getAccessTokenExpiration(accessToken?: string): number | null {
-  if (!accessToken) return null;
+function getAccessTokenPayload(accessToken?: string) {
+  if (!accessToken) return undefined;
   try {
-    const decoded: { exp: number } = jwtDecode(accessToken);
-    if (!decoded.exp) return null;
-    return decoded.exp; // convert to milliseconds
-  } catch {
-    return null; // assume expired if can't decode
+    const decodedToken = jwtDecode<JwtPayload & { scopes: string[] }>(
+      accessToken,
+    );
+    return decodedToken;
+  } catch (error) {
+    console.error("Error decoding access token:", error);
+    return null;
   }
 }
 

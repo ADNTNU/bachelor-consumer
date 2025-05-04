@@ -58,16 +58,7 @@ export type AsJson<T> = T extends boolean | number | string | null
         ? { [K in keyof T]: AsJson<T[K]> }
         : never;
 
-export type DBOWithId<T, U = string> = {
-  id: U;
-} & T;
-
 export type CompileTimeCheck = Record<string, never>;
-
-export type NextPageProps = {
-  params: URLSearchParams;
-  searchParams: URLSearchParams;
-};
 
 export type WithId = {
   id: object | string | number;

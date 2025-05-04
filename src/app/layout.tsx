@@ -6,6 +6,7 @@ import { SessionProvider } from "next-auth/react";
 import theme from "@material/theme";
 
 import { type Metadata } from "next";
+import { CssBaseline } from "@mui/material";
 
 const roboto = Roboto({
   weight: ["300", "400", "500", "700"],
@@ -49,6 +50,7 @@ export default function RootLayout({
           <ThemeProvider theme={theme}>
             <SessionProvider>
               <InitColorSchemeScript attribute="data-color-scheme" />
+              <CssBaseline />
               {children}
             </SessionProvider>
           </ThemeProvider>
