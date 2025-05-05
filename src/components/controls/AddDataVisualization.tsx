@@ -6,6 +6,8 @@ import {
   Alert,
   Box,
   Button,
+  FormControl,
+  InputLabel,
   MenuItem,
   Select,
   Stack,
@@ -28,11 +30,11 @@ const StyledStack = styled(Stack)<{ component: ElementType | undefined }>(
       alignItems: "center",
     },
     gap: theme.spacing(2), // Add consistent spacing
-    "& > .MuiInputBase-root": {
-      flex: 3,
+    "& > .MuiFormControl-root": {
+      flex: 2.5,
     },
     "& > .MuiButtonBase-root": {
-      flex: 1,
+      flex: 2,
     },
   }),
 );
@@ -90,41 +92,48 @@ export default function AddVisualization(props: AddVisualizationProps) {
         </Alert>
       )}
       <StyledStack component="form" onSubmit={handleSubmit(sumbitHandler)}>
-        <Select
-          {...register("entity", {
-            required: "Entity is required",
-          })}
-          value={selectedEntity ?? ""}
-          onChange={(e) =>
-            setSelectedEntity(e.target.value as AvailableEntities)
-          }
-          error={!!errors.entity}
-          label="Entity"
-        >
-          {entities.map((entity) => (
-            <MenuItem key={entity} value={entity}>
-              {uppercaseFirstLetter(prettyPrintCamel(entity))}
-            </MenuItem>
-          ))}
-        </Select>
-        <Select
-          {...register("fetchMethod", {
-            required: "Fetch method is required",
-          })}
-          value={selectedFetchMethod ?? ""}
-          onChange={(e) =>
-            setSelectedFetchMethod(e.target.value as AvailableFetchMethods)
-          }
-          error={!!errors.fetchMethod || !!selectedFetchMethodError}
-          disabled={!selectedEntity}
-          label="Fetch Method"
-        >
-          {fetchMethods.map((fetchMethod) => (
-            <MenuItem key={fetchMethod} value={fetchMethod}>
-              {fetchMethod}
-            </MenuItem>
-          ))}
-        </Select>
+        <FormControl>
+          <InputLabel id="entity-select-label">Entity</InputLabel>
+          <Select
+            {...register("entity", {
+              required: "Entity is required",
+            })}
+            value={selectedEntity ?? ""}
+            onChange={(e) =>
+              setSelectedEntity(e.target.value as AvailableEntities)
+            }
+            error={!!errors.entity}
+            label="Entity"
+            labelId="entity-select-label"
+          >
+            {entities.map((entity) => (
+              <MenuItem key={entity} value={entity}>
+                {uppercaseFirstLetter(prettyPrintCamel(entity))}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl>
+          <InputLabel id="fetch-method-select-label">Fetch Method</InputLabel>
+          <Select
+            {...register("fetchMethod", {
+              required: "Fetch method is required",
+            })}
+            value={selectedFetchMethod ?? ""}
+            onChange={(e) =>
+              setSelectedFetchMethod(e.target.value as AvailableFetchMethods)
+            }
+            error={!!errors.fetchMethod || !!selectedFetchMethodError}
+            disabled={!selectedEntity}
+            label="Fetch Method"
+          >
+            {fetchMethods.map((fetchMethod) => (
+              <MenuItem key={fetchMethod} value={fetchMethod}>
+                {fetchMethod}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <Button type="submit" variant="contained" color="primary">
           Add
         </Button>

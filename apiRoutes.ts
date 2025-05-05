@@ -1,11 +1,13 @@
 import type {
   AvailableEntities,
   EntityFetchMethods,
+  WebsocketEntities,
 } from "@models/entityFetchMethods";
 
-const gatewayBaseUrl = process.env.GATEWAY_BASE_URL ?? "http://localhost:8080";
-const rabbitAPIBaseUrl =
-  process.env.RABBIT_API_BASE_URL ?? "http://localhost:8080";
+const httpGatewayBaseUrl =
+  process.env.NEXT_PUBLIC_HTTP_GATEWAY_BASE_URL ?? "http://localhost:8080";
+const wsGatewayBaseUrl =
+  process.env.NEXT_PUBLIC_WS_GATEWAY_BASE_URL ?? "ws://localhost:8080";
 
 type ApiRoutes = Record<string, unknown> & {
   entities: {
@@ -18,13 +20,13 @@ type ApiRoutes = Record<string, unknown> & {
 
 export const apiRoutes = {
   auth: {
-    login: `${gatewayBaseUrl}/auth/login`,
+    login: `${httpGatewayBaseUrl}/auth/login`,
   },
   entities: {
     fisheryActivity: {
-      gRPC: `${gatewayBaseUrl}/grpc/fishery-activity`,
-      rest: `${gatewayBaseUrl}/rest/fishery-activity`,
-      websocket: `${rabbitAPIBaseUrl}/fishery-activity`,
+      gRPC: `${httpGatewayBaseUrl}/grpc/fishery-activity`,
+      REST: `${httpGatewayBaseUrl}/rest/fishery-activity`,
+      WebSocket: `${wsGatewayBaseUrl}/ws/data/fishery-activity`,
     },
   } as const,
 } satisfies ApiRoutes;
@@ -35,3 +37,11 @@ export type FetchMethodFromEntity<Entity extends AvailableEntities> =
       ? K
       : never
     : never;
+
+export function getWebSocketUrlWithSessionTokenForEntity(
+  entity: WebsocketEntities,
+  sessionToken: string,
+): string {
+  const url = apiRoutes.entities[entity].WebSocket;
+  return `${url}?session=${sessionToken}`;
+}

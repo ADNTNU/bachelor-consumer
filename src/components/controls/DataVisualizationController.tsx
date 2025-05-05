@@ -9,6 +9,7 @@ import {
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import WebsocketVisualization from "./apis/WebsocketVisualization";
 import AddDataVisualization from "./AddDataVisualization";
+import { getColDefsForEntity } from "@components/visualization/datagrid/colDefs/getColDefsForEntity";
 
 type EntityFetchMethodPair = {
   entity: AvailableEntities;
@@ -111,13 +112,14 @@ export default function DataVisualizationController(
       {entityFetchMethodPairsArray.map((pair) => {
         const { entity, fetchMethod } = pair;
         const pairKey = `${entity}-${fetchMethod}`;
-        if (fetchMethod === "rest") {
+        const [columns, columnVisibilityModel] = getColDefsForEntity(entity);
+        if (fetchMethod === "REST") {
           throw new Error("REST fetch method is not supported yet.");
         }
         if (fetchMethod === "gRPC") {
           throw new Error("gRPC fetch method is not supported yet.");
         }
-        if (fetchMethod === "websocket") {
+        if (fetchMethod === "WebSocket") {
           return (
             <Fragment key={pairKey}>
               <WebsocketVisualization
@@ -125,6 +127,8 @@ export default function DataVisualizationController(
                 handleRemoveVisualization={() =>
                   handleRemoveVisualization(pairKey)
                 }
+                columns={columns}
+                columnVisibilityModel={columnVisibilityModel}
               />
               {divider}
             </Fragment>

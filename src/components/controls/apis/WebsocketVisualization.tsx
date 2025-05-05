@@ -1,22 +1,18 @@
 "use client";
 
 import type { WebsocketEntities } from "@models/entityFetchMethods";
-import { Button } from "@mui/material";
+import { Alert, Button } from "@mui/material";
 import DataVisualizationWrapper from "../DataVisualizationWrapper";
 import DataVisualizationHeader from "../DataVisualizationHeader";
 import { uppercaseFirstLetter } from "@/utils/uppercaseFirstLetter";
 import { prettyPrintCamel } from "@/utils/prettyPrintCamel";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CustomDataGrid from "@components/visualization/datagrid/CustomDataGrid";
-import {
-  fisheryActivityColumns,
-  fisheryActivityColumnVisibilityModel,
-} from "@components/visualization/datagrid/cellDefs/fisheryActivity";
-
-type WebsocketVisualizationProps = {
-  entity: WebsocketEntities;
-  handleRemoveVisualization: () => void;
-};
+import type { GridColDef } from "@mui/x-data-grid";
+import type { WithId } from "@models/utils";
+import { useSession } from "next-auth/react";
+import { isWsTokenResponse } from "@models/dto/wsToken";
+import { getWebSocketUrlWithSessionTokenForEntity } from "apiRoutes";
 
 function UnsubscribeButton({
   handleUnsubscribe,
@@ -58,34 +54,130 @@ function SubscribeButton({
   );
 }
 
-export default function WebsocketVisualization(
+type WebsocketVisualizationProps = {
+  columns: GridColDef[];
+  columnVisibilityModel: Record<string, boolean>;
+  entity: WebsocketEntities;
+  handleRemoveVisualization: () => void;
+};
+
+export default function WebsocketVisualization<T extends WithId>(
   props: WebsocketVisualizationProps,
 ) {
-  const { entity, handleRemoveVisualization } = props;
+  const { columns, columnVisibilityModel, entity, handleRemoveVisualization } =
+    props;
 
+  const session = useSession();
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [rows, setRows] = useState<T[]>([]);
+  const wsRef = useRef<WebSocket | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!session?.data?.accessToken && isSubscribed) {
+      setError("You are not authenticated. Please log in to subscribe.");
+      handleUnsubscribe();
+    } else if (session?.data?.accessToken) {
+      setError(null);
+    }
+  }, [session?.data?.accessToken, isSubscribed]);
+
+  const handleSubscribe = async () => {
+    if (!session?.data?.accessToken || isSubscribed) return;
+
+    try {
+      // Step 1: Get short-lived session token
+      const res = await fetch("/ws-auth-token", {
+        headers: {
+          Authorization: `Bearer ${session.data.accessToken}`,
+        },
+      });
+
+      if (!res.ok) {
+        console.error("Failed to fetch WebSocket session token");
+        return;
+      }
+
+      const wsTokenBody: unknown = await res.json();
+
+      if (!isWsTokenResponse(wsTokenBody)) {
+        console.error("Invalid WebSocket token response", wsTokenBody);
+        return;
+      }
+
+      const { wsToken } = wsTokenBody;
+
+      // Step 2: Connect WebSocket through Gateway
+      const ws = new WebSocket(
+        getWebSocketUrlWithSessionTokenForEntity(entity, wsToken),
+      );
+
+      ws.onopen = () => {
+        setIsSubscribed(true);
+        console.log(`[WebSocket] Subscribed to ${entity}`);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          if (typeof event.data !== "string") {
+            console.error("Received non-string message:", event.data);
+            return;
+          }
+
+          const data = JSON.parse(event.data) as T | T[];
+          setRows((prev) => [
+            ...prev,
+            ...(Array.isArray(data) ? data : [data]),
+          ]);
+        } catch (e) {
+          console.error("Failed to parse WebSocket message", e);
+        }
+      };
+
+      ws.onclose = () => {
+        console.log(`[WebSocket] Disconnected from ${entity}`);
+        setIsSubscribed(false);
+      };
+
+      ws.onerror = (err) => {
+        console.error("[WebSocket] Error:", err);
+        ws.close();
+      };
+
+      wsRef.current = ws;
+    } catch (e) {
+      console.error("Subscription error:", e);
+    }
+  };
+
+  const handleUnsubscribe = () => {
+    wsRef.current?.close();
+    setIsSubscribed(false);
+  };
+
   return (
     <DataVisualizationWrapper>
       <DataVisualizationHeader
-        label={`${uppercaseFirstLetter(prettyPrintCamel(entity))} - Websocket`}
+        label={`${uppercaseFirstLetter(prettyPrintCamel(entity))} - WebSocket`}
         buttons={[
           <UnsubscribeButton
             key="unsubscribe"
             isSubscribed={isSubscribed}
-            handleUnsubscribe={() => setIsSubscribed(false)}
+            handleUnsubscribe={handleUnsubscribe}
           />,
           <SubscribeButton
             key="subscribe"
             isSubscribed={isSubscribed}
-            handleSubscribe={() => setIsSubscribed(true)}
+            handleSubscribe={handleSubscribe}
           />,
         ]}
         handleRemoveVisualization={handleRemoveVisualization}
       />
+      {error && <Alert severity="error">{error}</Alert>}
       <CustomDataGrid
-        columns={fisheryActivityColumns}
-        columnVisibilityModel={fisheryActivityColumnVisibilityModel}
-        rows={[]}
+        columns={columns}
+        columnVisibilityModel={columnVisibilityModel}
+        rows={rows}
       />
     </DataVisualizationWrapper>
   );

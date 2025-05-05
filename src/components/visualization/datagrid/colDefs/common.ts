@@ -21,3 +21,7 @@ export type TypeSafeColVisibility<T> = T extends (infer U)[]
       : { [K in keyof U]: boolean } & GridColumnVisibilityModel
     : { [K in keyof U]: boolean } & GridColumnVisibilityModel
   : { [K in keyof T]: boolean } & GridColumnVisibilityModel;
+
+export type UnknownGridData = Record<string, unknown> & {
+  id: object | string | number;
+};

@@ -1,18 +1,18 @@
 export const availableEntities = ["fisheryActivity"] as const;
 export type AvailableEntities = (typeof availableEntities)[number];
 
-export const availableFetchMethods = ["gRPC", "rest", "websocket"] as const;
+export const availableFetchMethods = ["gRPC", "REST", "WebSocket"] as const;
 export type AvailableFetchMethods = (typeof availableFetchMethods)[number];
 
 export const availalbeEntityFetchMethods = {
-  fisheryActivity: ["gRPC", "rest", "websocket"],
+  fisheryActivity: ["gRPC", "REST", "WebSocket"],
 } as const satisfies Record<AvailableEntities, AvailableFetchMethods[]>;
 
 export type EntityFetchMethods = typeof availalbeEntityFetchMethods;
 
 export type WebsocketEntities = {
   [Entity in AvailableEntities]: EntityFetchMethods[Entity] extends (infer FetchMethod)[]
-    ? FetchMethod extends "websocket"
+    ? FetchMethod extends "WebSocket"
       ? Entity
       : never
     : never;
@@ -20,7 +20,7 @@ export type WebsocketEntities = {
 
 export type RestEntities = {
   [Entity in AvailableEntities]: EntityFetchMethods[Entity] extends (infer FetchMethod)[]
-    ? FetchMethod extends "rest"
+    ? FetchMethod extends "REST"
       ? Entity
       : never
     : never;
@@ -28,7 +28,7 @@ export type RestEntities = {
 
 export type GrpcEntities = {
   [Entity in AvailableEntities]: EntityFetchMethods[Entity] extends (infer FetchMethod)[]
-    ? FetchMethod extends "grpc"
+    ? FetchMethod extends "gRPC"
       ? Entity
       : never
     : never;

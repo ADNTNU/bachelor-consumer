@@ -1,20 +1,16 @@
 import { DataGrid } from "@mui/x-data-grid";
-import type { TypeSafeColDef } from "./cellDefs/common";
+import type { TypeSafeColDef } from "./colDefs/common";
+import type { WithId } from "@models/utils";
 
-type DynamicGridData = Record<string, unknown> & {
-  id: object | string | number;
-};
-
-type CustomDataGridProps<T extends DynamicGridData, U extends object> = {
+type CustomDataGridProps<T extends WithId, U extends object> = {
   columns: TypeSafeColDef<T, U>[];
   columnVisibilityModel: Record<TypeSafeColDef<T, U>["field"], boolean>;
   rows: T[];
 };
 
-export default function CustomDataGrid<
-  T extends DynamicGridData,
-  U extends object,
->(props: CustomDataGridProps<T, U>) {
+export default function CustomDataGrid<T extends WithId, U extends object>(
+  props: CustomDataGridProps<T, U>,
+) {
   const { columns, columnVisibilityModel, rows } = props;
 
   return (
