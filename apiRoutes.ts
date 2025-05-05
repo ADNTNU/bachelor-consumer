@@ -21,6 +21,7 @@ type ApiRoutes = Record<string, unknown> & {
 export const apiRoutes = {
   auth: {
     login: `${httpGatewayBaseUrl}/auth/login`,
+    wsToken: `${httpGatewayBaseUrl}/ws-auth-token`,
   },
   entities: {
     fisheryActivity: {

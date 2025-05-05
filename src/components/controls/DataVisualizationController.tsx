@@ -10,6 +10,8 @@ import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import WebsocketVisualization from "./apis/WebsocketVisualization";
 import AddDataVisualization from "./AddDataVisualization";
 import { getColDefsForEntity } from "@components/visualization/datagrid/colDefs/getColDefsForEntity";
+import RestVisualization from "./apis/RestVisualization";
+import GrpcVisualization from "./apis/GrpcVisualization";
 
 type EntityFetchMethodPair = {
   entity: AvailableEntities;
@@ -114,10 +116,34 @@ export default function DataVisualizationController(
         const pairKey = `${entity}-${fetchMethod}`;
         const [columns, columnVisibilityModel] = getColDefsForEntity(entity);
         if (fetchMethod === "REST") {
-          throw new Error("REST fetch method is not supported yet.");
+          return (
+            <Fragment key={pairKey}>
+              <RestVisualization
+                entity={entity}
+                handleRemoveVisualization={() =>
+                  handleRemoveVisualization(pairKey)
+                }
+                columns={columns}
+                columnVisibilityModel={columnVisibilityModel}
+              />
+              {divider}
+            </Fragment>
+          );
         }
         if (fetchMethod === "gRPC") {
-          throw new Error("gRPC fetch method is not supported yet.");
+          return (
+            <Fragment key={pairKey}>
+              <GrpcVisualization
+                entity={entity}
+                handleRemoveVisualization={() =>
+                  handleRemoveVisualization(pairKey)
+                }
+                columns={columns}
+                columnVisibilityModel={columnVisibilityModel}
+              />
+              {divider}
+            </Fragment>
+          );
         }
         if (fetchMethod === "WebSocket") {
           return (

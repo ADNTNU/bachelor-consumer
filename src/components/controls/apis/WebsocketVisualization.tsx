@@ -6,13 +6,13 @@ import DataVisualizationWrapper from "../DataVisualizationWrapper";
 import DataVisualizationHeader from "../DataVisualizationHeader";
 import { uppercaseFirstLetter } from "@/utils/uppercaseFirstLetter";
 import { prettyPrintCamel } from "@/utils/prettyPrintCamel";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import CustomDataGrid from "@components/visualization/datagrid/CustomDataGrid";
 import type { GridColDef } from "@mui/x-data-grid";
 import type { WithId } from "@models/utils";
 import { useSession } from "next-auth/react";
 import { isWsTokenResponse } from "@models/dto/wsToken";
-import { getWebSocketUrlWithSessionTokenForEntity } from "apiRoutes";
+import { apiRoutes, getWebSocketUrlWithSessionTokenForEntity } from "apiRoutes";
 
 function UnsubscribeButton({
   handleUnsubscribe,
@@ -37,9 +37,11 @@ function UnsubscribeButton({
 function SubscribeButton({
   handleSubscribe,
   isSubscribed,
+  isAuthenticated,
 }: {
   handleSubscribe: () => void;
   isSubscribed: boolean;
+  isAuthenticated: boolean;
 }) {
   return (
     <Button
@@ -47,7 +49,7 @@ function SubscribeButton({
       onClick={handleSubscribe}
       color="primary"
       size="small"
-      disabled={isSubscribed}
+      disabled={isSubscribed || !isAuthenticated}
     >
       Subscribe
     </Button>
@@ -73,21 +75,31 @@ export default function WebsocketVisualization<T extends WithId>(
   const wsRef = useRef<WebSocket | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const isAuthenticated = useMemo(() => {
+    return session.status === "authenticated";
+  }, [session.status]);
+
   useEffect(() => {
-    if (!session?.data?.accessToken && isSubscribed) {
-      setError("You are not authenticated. Please log in to subscribe.");
+    if (!isAuthenticated && isSubscribed) {
+      setError(
+        "You are not authenticated. Please log in to subscribe to data.",
+      );
       handleUnsubscribe();
-    } else if (session?.data?.accessToken) {
+    } else if (!isAuthenticated && !isSubscribed) {
+      setError(
+        "You are not authenticated. Please log in to subscribe to data.",
+      );
+    } else if (isAuthenticated) {
       setError(null);
     }
-  }, [session?.data?.accessToken, isSubscribed]);
+  }, [isSubscribed, isAuthenticated]);
 
   const handleSubscribe = async () => {
     if (!session?.data?.accessToken || isSubscribed) return;
 
     try {
       // Step 1: Get short-lived session token
-      const res = await fetch("/ws-auth-token", {
+      const res = await fetch(apiRoutes.auth.wsToken, {
         headers: {
           Authorization: `Bearer ${session.data.accessToken}`,
         },
@@ -169,11 +181,16 @@ export default function WebsocketVisualization<T extends WithId>(
             key="subscribe"
             isSubscribed={isSubscribed}
             handleSubscribe={handleSubscribe}
+            isAuthenticated={isAuthenticated}
           />,
         ]}
         handleRemoveVisualization={handleRemoveVisualization}
       />
-      {error && <Alert severity="error">{error}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ width: "100%" }}>
+          {error}
+        </Alert>
+      )}
       <CustomDataGrid
         columns={columns}
         columnVisibilityModel={columnVisibilityModel}
