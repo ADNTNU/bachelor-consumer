@@ -30,18 +30,24 @@ function FetchButton({
   );
 }
 
-type GrpcVisualizationProps = {
+type GrpcVisualizationProps<T extends WithId> = {
   columns: GridColDef[];
   columnVisibilityModel: Record<string, boolean>;
   entity: RestEntities;
   handleRemoveVisualization: () => void;
+  fetcherWithValidation: (token: string) => Promise<T[]>;
 };
 
 export default function GrpcVisualization<T extends WithId>(
-  props: GrpcVisualizationProps,
+  props: GrpcVisualizationProps<T>,
 ) {
-  const { columns, columnVisibilityModel, entity, handleRemoveVisualization } =
-    props;
+  const {
+    columns,
+    columnVisibilityModel,
+    entity,
+    handleRemoveVisualization,
+    fetcherWithValidation,
+  } = props;
 
   const session = useSession();
   const [rows, setRows] = useState<T[]>([]);
@@ -60,9 +66,21 @@ export default function GrpcVisualization<T extends WithId>(
   }, [isAuthenticated]);
 
   const handleFetch = async () => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !session.data?.accessToken) {
       setError("You are not authenticated. Please log in to fetch data.");
       return;
+    }
+
+    try {
+      // Here we assume there's a 'fetchData' method on your gRPC service.
+      // Replace `fetchData` with the actual method from your gRPC service.
+
+      const response = await fetcherWithValidation(session.data.accessToken);
+
+      setRows(response);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError("Failed to fetch data. Please try again later.");
     }
   };
 

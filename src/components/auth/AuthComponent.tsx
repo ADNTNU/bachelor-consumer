@@ -108,7 +108,6 @@ export default function AuthComponent() {
           severity="error"
           sx={{
             width: "100%",
-            // boxSizing: "border-box",
           }}
           onClose={() => setError(null)}
         >
@@ -116,7 +115,13 @@ export default function AuthComponent() {
         </Alert>
       )}
       {success && (
-        <Alert severity="success" onClose={() => setSuccess(false)}>
+        <Alert
+          severity="success"
+          sx={{
+            width: "100%",
+          }}
+          onClose={() => setSuccess(false)}
+        >
           Successfully logged in
         </Alert>
       )}

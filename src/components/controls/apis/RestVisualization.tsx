@@ -9,6 +9,7 @@ import DataVisualizationHeader from "../DataVisualizationHeader";
 import { uppercaseFirstLetter } from "@/utils/uppercaseFirstLetter";
 import { prettyPrintCamel } from "@/utils/prettyPrintCamel";
 import CustomDataGrid from "@components/visualization/datagrid/CustomDataGrid";
+import { apiRoutes } from "@/apiRoutes";
 
 function FetchButton({
   handleFetch,
@@ -30,7 +31,8 @@ function FetchButton({
   );
 }
 
-type RestVisualizationProps = {
+type RestVisualizationProps<T extends WithId> = {
+  dataValidator: (data: unknown) => data is T;
   columns: GridColDef[];
   columnVisibilityModel: Record<string, boolean>;
   entity: RestEntities;
@@ -38,10 +40,15 @@ type RestVisualizationProps = {
 };
 
 export default function RestVisualization<T extends WithId>(
-  props: RestVisualizationProps,
+  props: RestVisualizationProps<T>,
 ) {
-  const { columns, columnVisibilityModel, entity, handleRemoveVisualization } =
-    props;
+  const {
+    columns,
+    columnVisibilityModel,
+    entity,
+    handleRemoveVisualization,
+    dataValidator,
+  } = props;
 
   const session = useSession();
   const [rows, setRows] = useState<T[]>([]);
@@ -60,9 +67,43 @@ export default function RestVisualization<T extends WithId>(
   }, [isAuthenticated]);
 
   const handleFetch = async () => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !session.data?.accessToken) {
       setError("You are not authenticated. Please log in to fetch data.");
       return;
+    }
+
+    try {
+      // Make the REST API call (adjust the URL as needed)
+      const response = await fetch(apiRoutes.entities[entity].REST, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.data.accessToken}`,
+        },
+      });
+
+      if (response.status === 401) {
+        setError("You are not authenticated. Please log in to fetch data.");
+        return;
+      }
+
+      if (!response.ok) {
+        setError("Failed to fetch data from the API. Please try again later.");
+        return;
+      }
+
+      const data: unknown = await response.json();
+
+      if (!Array.isArray(data) || !data.every(dataValidator)) {
+        console.error("Invalid data format:", data);
+        setError("Invalid data format received from the API.");
+        return;
+      }
+
+      setRows(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setError("Failed to fetch data. Please try again later.");
     }
   };
 

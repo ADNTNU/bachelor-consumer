@@ -14,6 +14,7 @@ import {
 } from "./CredentialSignInErrors";
 import assert from "assert";
 import { jwtDecode, type JwtPayload } from "jwt-decode";
+import { apiRoutes } from "@/apiRoutes";
 
 // /**
 //  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -81,13 +82,12 @@ export const authConfig = {
         );
 
         try {
-          const baseUrl = process.env.GATEWAY_INTERNAL_URL;
-          res = await fetch(`${baseUrl}/login`, {
+          res = await fetch(apiRoutes.auth.login, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              clientId: credentials.clientId,
-              clientSecret: credentials.clientSecret,
+              id: credentials.clientId,
+              secret: credentials.clientSecret,
             } satisfies LoginRequestBody),
           });
         } catch (error) {
@@ -100,7 +100,9 @@ export const authConfig = {
         }
 
         if (!res.ok) {
-          throw new GenericLoginError("Error in response from server");
+          throw new GenericLoginError(
+            `Error in response from server. Status: ${res.status}`,
+          );
         }
 
         try {

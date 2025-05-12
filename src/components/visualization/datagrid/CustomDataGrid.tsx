@@ -18,13 +18,14 @@ export default function CustomDataGrid<T extends WithId, U extends object>(
       sx={{ width: "100%" }}
       rows={rows}
       columns={columns}
-      pageSizeOptions={[10, 25, 50, 100]}
+      showToolbar
+      pageSizeOptions={[5, 10, 25, 50, 100]}
       initialState={{
         columns: {
           columnVisibilityModel,
         },
         pagination: {
-          paginationModel: { pageSize: 10, page: 0 },
+          paginationModel: { pageSize: 5, page: 0 },
         },
       }}
     />

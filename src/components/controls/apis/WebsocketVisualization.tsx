@@ -1,6 +1,6 @@
 "use client";
 
-import type { WebsocketEntities } from "@models/entityFetchMethods";
+import type { WebSocketEntities } from "@models/entityFetchMethods";
 import { Alert, Button } from "@mui/material";
 import DataVisualizationWrapper from "../DataVisualizationWrapper";
 import DataVisualizationHeader from "../DataVisualizationHeader";
@@ -12,7 +12,10 @@ import type { GridColDef } from "@mui/x-data-grid";
 import type { WithId } from "@models/utils";
 import { useSession } from "next-auth/react";
 import { isWsTokenResponse } from "@models/dto/wsToken";
-import { apiRoutes, getWebSocketUrlWithSessionTokenForEntity } from "apiRoutes";
+import {
+  apiRoutes,
+  getWebSocketUrlWithSessionTokenForEntity,
+} from "@/apiRoutes";
 
 function UnsubscribeButton({
   handleUnsubscribe,
@@ -59,7 +62,7 @@ function SubscribeButton({
 type WebsocketVisualizationProps = {
   columns: GridColDef[];
   columnVisibilityModel: Record<string, boolean>;
-  entity: WebsocketEntities;
+  entity: WebSocketEntities;
   handleRemoveVisualization: () => void;
 };
 

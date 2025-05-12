@@ -14,7 +14,7 @@ export const availalbeEntityFetchMethods = {
 
 export type EntityFetchMethods = typeof availalbeEntityFetchMethods;
 
-export type WebsocketEntities = {
+export type WebSocketEntities = {
   [Entity in AvailableEntities]: EntityFetchMethods[Entity] extends (infer FetchMethod)[]
     ? FetchMethod extends "WebSocket"
       ? Entity

@@ -3,15 +3,19 @@
 import {
   type AvailableEntities,
   type AvailableFetchMethods,
+  type GrpcEntities,
+  type RestEntities,
+  type WebSocketEntities,
   availableEntities,
   availalbeEntityFetchMethods,
 } from "@models/entityFetchMethods";
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import WebsocketVisualization from "./apis/WebsocketVisualization";
 import AddDataVisualization from "./AddDataVisualization";
-import { getColDefsForEntity } from "@components/visualization/datagrid/colDefs/getColDefsForEntity";
 import RestVisualization from "./apis/RestVisualization";
 import GrpcVisualization from "./apis/GrpcVisualization";
+import { getDataForEntity as getVisualizationPropsForEntity } from "@components/visualization/datagrid/colDefs/getColDefsForEntity";
+import { grpcClientFromEntity as grpcFetcherFromEntity } from "@/grpc/fetchers/getGrpcFetcherFromEntity";
 
 type EntityFetchMethodPair = {
   entity: AvailableEntities;
@@ -114,17 +118,19 @@ export default function DataVisualizationController(
       {entityFetchMethodPairsArray.map((pair) => {
         const { entity, fetchMethod } = pair;
         const pairKey = `${entity}-${fetchMethod}`;
-        const [columns, columnVisibilityModel] = getColDefsForEntity(entity);
+        const [columns, columnVisibilityModel, dataValidator] =
+          getVisualizationPropsForEntity(entity);
         if (fetchMethod === "REST") {
           return (
             <Fragment key={pairKey}>
               <RestVisualization
-                entity={entity}
+                entity={entity as RestEntities}
                 handleRemoveVisualization={() =>
                   handleRemoveVisualization(pairKey)
                 }
                 columns={columns}
                 columnVisibilityModel={columnVisibilityModel}
+                dataValidator={dataValidator}
               />
               {divider}
             </Fragment>
@@ -134,12 +140,15 @@ export default function DataVisualizationController(
           return (
             <Fragment key={pairKey}>
               <GrpcVisualization
-                entity={entity}
+                entity={entity as GrpcEntities}
                 handleRemoveVisualization={() =>
                   handleRemoveVisualization(pairKey)
                 }
                 columns={columns}
                 columnVisibilityModel={columnVisibilityModel}
+                fetcherWithValidation={
+                  grpcFetcherFromEntity[entity as GrpcEntities]
+                }
               />
               {divider}
             </Fragment>
@@ -149,7 +158,7 @@ export default function DataVisualizationController(
           return (
             <Fragment key={pairKey}>
               <WebsocketVisualization
-                entity={entity}
+                entity={entity as WebSocketEntities}
                 handleRemoveVisualization={() =>
                   handleRemoveVisualization(pairKey)
                 }
