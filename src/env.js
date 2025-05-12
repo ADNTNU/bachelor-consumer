@@ -15,6 +15,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    NEXTAUTH_URL: z.string().url(),
   },
 
   /**
@@ -25,6 +26,7 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_HTTP_GATEWAY_BASE_URL: z.string().url(),
     NEXT_PUBLIC_WS_GATEWAY_BASE_URL: z.string().url(),
+    NEXT_PUBLIC_GRPC_GATEWAY_BASE_URL: z.string().url(),
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
   },
 
@@ -35,7 +37,10 @@ export const env = createEnv({
   runtimeEnv: {
     AUTH_SECRET: process.env.AUTH_SECRET,
     AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     NODE_ENV: process.env.NODE_ENV,
+    NEXT_PUBLIC_GRPC_GATEWAY_BASE_URL:
+      process.env.NEXT_PUBLIC_GRPC_GATEWAY_BASE_URL,
     NEXT_PUBLIC_HTTP_GATEWAY_BASE_URL:
       process.env.NEXT_PUBLIC_HTTP_GATEWAY_BASE_URL,
     NEXT_PUBLIC_WS_GATEWAY_BASE_URL:

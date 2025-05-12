@@ -1,8 +1,8 @@
 import type { CompileTimeCheck, UnknownKeys } from "../utils";
 
 export type LoginRequestBody = {
-  clientId: string;
-  clientSecret: string;
+  id: string;
+  secret: string;
 };
 
 export type LoginResponseBody = {
@@ -16,10 +16,7 @@ export function isLoginResponseBody(data: unknown): data is LoginResponseBody {
     return false;
   }
 
-  const {
-    token,
-    ...rest
-  } = data as UnknownKeys<LoginResponseBody>;
+  const { token, ...rest } = data as UnknownKeys<LoginResponseBody>;
 
   const compileTimeCheck: CompileTimeCheck = rest;
 
@@ -28,8 +25,5 @@ export function isLoginResponseBody(data: unknown): data is LoginResponseBody {
     // return false;
   }
 
-  return (
-    "token" in data &&
-    typeof token === "string"
-  );
+  return "token" in data && typeof token === "string";
 }

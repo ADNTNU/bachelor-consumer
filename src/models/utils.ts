@@ -61,7 +61,7 @@ export type AsJson<T> = T extends boolean | number | string | null
 export type CompileTimeCheck = Record<string, never>;
 
 export type WithId = {
-  id: object | string | number;
+  id: object | string | number | bigint;
 };
 
 export type APIResponse = {

@@ -13,9 +13,14 @@
     "lint:fix": "next lint --fix",
     "preview": "next build && next start",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "npm run generate-proto",
+    "generate-proto": "npx buf generate"
   },
   "dependencies": {
+    "@bufbuild/protobuf": "^2.2.5",
+    "@connectrpc/connect": "^2.0.2",
+    "@connectrpc/connect-web": "^2.0.2",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
@@ -25,6 +30,8 @@
     "@mui/x-data-grid": "^8.0.0-beta.3",
     "@t3-oss/env-nextjs": "^0.12.0",
     "dayjs": "^1.11.13",
+    "google-protobuf": "^3.21.2",
+    "grpc-web": "^1.5.0",
     "jwt-decode": "^4.0.0",
     "next": "^15.2.3",
     "next-auth": "5.0.0-beta.25",
@@ -35,6 +42,8 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@bufbuild/buf": "^1.53.0",
+    "@bufbuild/protoc-gen-es": "^2.2.5",
     "@eslint/eslintrc": "^3.3.1",
     "@types/node": "^20.14.10",
     "@types/react": "^19.0.0",

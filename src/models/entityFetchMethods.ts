@@ -1,4 +1,7 @@
-export const availableEntities = ["fisheryActivity"] as const;
+export const availableEntities = [
+  "fisheryActivity",
+  "fishingFacility",
+] as const;
 export type AvailableEntities = (typeof availableEntities)[number];
 
 export const availableFetchMethods = ["gRPC", "REST", "WebSocket"] as const;
@@ -6,6 +9,7 @@ export type AvailableFetchMethods = (typeof availableFetchMethods)[number];
 
 export const availalbeEntityFetchMethods = {
   fisheryActivity: ["gRPC", "REST", "WebSocket"],
+  fishingFacility: ["gRPC", "REST", "WebSocket"],
 } as const satisfies Record<AvailableEntities, AvailableFetchMethods[]>;
 
 export type EntityFetchMethods = typeof availalbeEntityFetchMethods;

@@ -34,5 +34,6 @@ jobs:
           build-args: |
             AUTH_SECRET=not-important
             AUTH_TRUST_HOST=true
-            NEXT_PUBLIC_BACKEND_BASE_URL=https://not-important.com
-            BACKEND_INTERNAL_URL=https://not-important.com
+            NEXT_PUBLIC_HTTP_GATEWAY_BASE_URL=https://not-important.com
+            NEXT_PUBLIC_WS_GATEWAY_BASE_URL=https://not-important.com
+            NEXT_PUBLIC_GRPC_GATEWAY_BASE_URL=https://not-important.com
