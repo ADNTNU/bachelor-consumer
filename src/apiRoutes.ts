@@ -25,7 +25,7 @@ type ApiRoutes = Record<string, unknown> & {
 };
 
 export const apiRoutes = {
-  baseGrpc: `${grpcGatewayBaseUrl}/grpc`,
+  baseGrpc: `${grpcGatewayBaseUrl}`,
   auth: {
     login: `${internalGatewayBaseUrl}/auth`,
     wsToken: `${httpGatewayBaseUrl}/ws-auth-token`,
