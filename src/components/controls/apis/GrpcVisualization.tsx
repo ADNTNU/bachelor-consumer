@@ -1,4 +1,4 @@
-import type { RestEntities } from "@models/entityFetchMethods";
+import type { GrpcEntities } from "@models/entityFetchMethods";
 import type { WithId } from "@models/utils";
 import { Alert, Button } from "@mui/material";
 import type { GridColDef } from "@mui/x-data-grid";
@@ -33,7 +33,7 @@ function FetchButton({
 type GrpcVisualizationProps<T extends WithId> = {
   columns: GridColDef[];
   columnVisibilityModel: Record<string, boolean>;
-  entity: RestEntities;
+  entity: GrpcEntities;
   handleRemoveVisualization: () => void;
   fetcherWithValidation: (token: string) => Promise<T[]>;
 };
@@ -87,7 +87,7 @@ export default function GrpcVisualization<T extends WithId>(
   return (
     <DataVisualizationWrapper>
       <DataVisualizationHeader
-        label={`${uppercaseFirstLetter(prettyPrintCamel(entity))} - REST`}
+        label={`${uppercaseFirstLetter(prettyPrintCamel(entity))} - gRPC`}
         buttons={[
           <FetchButton
             key="fetch"
