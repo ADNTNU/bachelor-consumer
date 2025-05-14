@@ -6,6 +6,10 @@ WORKDIR /app
 # Copy package.json and package-lock.json (or yarn.lock)
 COPY package.json package-lock.json ./
 
+# Copy Buf config and proto definitions
+COPY buf.yaml buf.gen.yaml ./
+COPY src/grpc/protos/ src/grpc/protos/
+
 # Install dependencies
 RUN npm ci
 
