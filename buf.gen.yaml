@@ -1,0 +1,11 @@
+# Learn more: https://buf.build/docs/configuration/v2/buf-gen-yaml
+version: v2
+inputs:
+  - directory: src/grpc/protos
+plugins:
+  - local: protoc-gen-es
+    out: src/grpc/generated
+    # Also generate any imported dependencies
+    include_imports: true
+    # Add more plugin options here
+    opt: target=ts
