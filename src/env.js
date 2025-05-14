@@ -16,6 +16,7 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     NEXTAUTH_URL: z.string().url(),
+    INTERNAL_GATEWAY_BASE_URL: z.string().url(),
   },
 
   /**
@@ -45,6 +46,7 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_HTTP_GATEWAY_BASE_URL,
     NEXT_PUBLIC_WS_GATEWAY_BASE_URL:
       process.env.NEXT_PUBLIC_WS_GATEWAY_BASE_URL,
+    INTERNAL_GATEWAY_BASE_URL: process.env.INTERNAL_GATEWAY_BASE_URL,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

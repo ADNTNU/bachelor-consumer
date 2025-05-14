@@ -10,6 +10,8 @@ const wsGatewayBaseUrl =
   process.env.NEXT_PUBLIC_WS_GATEWAY_BASE_URL ?? "ws://localhost:8080";
 const grpcGatewayBaseUrl =
   process.env.NEXT_PUBLIC_GRPC_GATEWAY_BASE_URL ?? "http://localhost:9090";
+const internalGatewayBaseUrl =
+  process.env.INTERNAL_GATEWAY_BASE_URL ?? "http://localhost:8080";
 
 type ApiRoutes = Record<string, unknown> & {
   entities: {
@@ -25,7 +27,7 @@ type ApiRoutes = Record<string, unknown> & {
 export const apiRoutes = {
   baseGrpc: `${grpcGatewayBaseUrl}/grpc`,
   auth: {
-    login: `${httpGatewayBaseUrl}/auth`,
+    login: `${internalGatewayBaseUrl}/auth`,
     wsToken: `${httpGatewayBaseUrl}/ws-auth-token`,
   },
   entities: {

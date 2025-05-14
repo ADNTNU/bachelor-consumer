@@ -13,7 +13,8 @@ jobs:
     env:
       AUTH_SECRET: not-important
       AUTH_TRUST_HOST: true
-      NEXTAUTH_URL: https://consumer.flightfinder.space
+      NEXTAUTH_URL: https://not-important.com
+      INTERNAL_GATEWAY_BASE_URL: https://not-important.com
       NEXT_PUBLIC_HTTP_GATEWAY_BASE_URL: https://api.flightfinder.space
       NEXT_PUBLIC_WS_GATEWAY_BASE_URL: https://api.flightfinder.space
       NEXT_PUBLIC_GRPC_GATEWAY_BASE_URL: https://grpc-web.flightfinder.space
