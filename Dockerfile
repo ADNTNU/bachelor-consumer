@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Copy Buf config and proto definitions
-COPY buf.yaml buf.gen.yaml ./
+COPY buf.gen.yaml ./
 COPY src/grpc/protos/ src/grpc/protos/
 
 # Install dependencies
